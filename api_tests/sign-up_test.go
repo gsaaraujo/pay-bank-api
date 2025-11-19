@@ -17,6 +17,7 @@ import (
 
 type SignUpSuite struct {
 	suite.Suite
+	accountDAO      daos.AccountDAO
 	customerDAO     daos.CustomerDAO
 	testEnvironment *testhelpers.TestEnvironment
 }
@@ -25,6 +26,7 @@ func (r *SignUpSuite) SetupSuite() {
 	r.testEnvironment = testhelpers.NewTestEnvironment()
 	r.testEnvironment.Start()
 
+	r.accountDAO = daos.NewAccountDAO(r.testEnvironment.PgxPool())
 	r.customerDAO = daos.NewCustomerDAO(r.testEnvironment.PgxPool())
 }
 
@@ -54,6 +56,13 @@ func (r *SignUpSuite) Test1() {
 		utils.ThrowOnError(bcrypt.CompareHashAndPassword([]byte(customerSchema.Password), []byte("123456")))
 		r.Require().WithinDuration(time.Now().UTC(), customerSchema.UpdatedAt, 5*time.Second)
 		r.Require().WithinDuration(time.Now().UTC(), customerSchema.CreatedAt, 5*time.Second)
+
+		accountSchema := r.accountDAO.FindOneByCustomerId(customerSchema.Id)
+		r.Require().NotNil(accountSchema)
+		r.Require().True(utils.IsValidUUID(accountSchema.Id.String()))
+		r.Require().Equal(int64(100000), accountSchema.Balance)
+		r.Require().WithinDuration(time.Now().UTC(), accountSchema.UpdatedAt, 5*time.Second)
+		r.Require().WithinDuration(time.Now().UTC(), accountSchema.CreatedAt, 5*time.Second)
 	})
 }
 

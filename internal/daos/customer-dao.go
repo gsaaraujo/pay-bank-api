@@ -15,8 +15,8 @@ type CustomerSchema struct {
 	Name      string
 	Email     string
 	Password  string
-	UpdatedAt time.Time
 	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type CustomerDAO struct {
@@ -29,16 +29,16 @@ func NewCustomerDAO(pgxPool *pgxpool.Pool) CustomerDAO {
 
 func (p *CustomerDAO) Create(customerSchema CustomerSchema) {
 	_ = utils.GetOrThrow(p.pgxPool.Exec(context.Background(),
-		"INSERT INTO customers (id, name, email, password, updated_at, created_at) VALUES ($1, $2, $3, $4, $5, $6)",
-		customerSchema.Id, customerSchema.Name, customerSchema.Email, customerSchema.Password, customerSchema.UpdatedAt, customerSchema.CreatedAt))
+		"INSERT INTO customers (id, name, email, password, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)",
+		customerSchema.Id, customerSchema.Name, customerSchema.Email, customerSchema.Password, customerSchema.CreatedAt, customerSchema.UpdatedAt))
 }
 
 func (c *CustomerDAO) FindOneByEmail(email string) *CustomerSchema {
 	var customerSchema CustomerSchema
 
 	err := c.pgxPool.QueryRow(context.Background(),
-		"SELECT id, name, email, password, updated_at, created_at FROM customers WHERE email = $1", email).
-		Scan(&customerSchema.Id, &customerSchema.Name, &customerSchema.Email, &customerSchema.Password, &customerSchema.UpdatedAt, &customerSchema.CreatedAt)
+		"SELECT id, name, email, password, created_at, updated_at FROM customers WHERE email = $1", email).
+		Scan(&customerSchema.Id, &customerSchema.Name, &customerSchema.Email, &customerSchema.Password, &customerSchema.CreatedAt, &customerSchema.UpdatedAt)
 
 	if err != nil && err == pgx.ErrNoRows {
 		return nil

@@ -3,6 +3,15 @@ CREATE TABLE IF NOT EXISTS customers (
   name VARCHAR(50) NOT NULL,
   email VARCHAR(50) UNIQUE NOT NULL,
   password VARCHAR(100) NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS accounts (
+  id UUID PRIMARY KEY,
+  customer_id UUID NOT NULL,
+  balance INTEGER NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
   updated_at TIMESTAMPTZ NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL
+  FOREIGN KEY (customer_id) REFERENCES customers(id)
 );

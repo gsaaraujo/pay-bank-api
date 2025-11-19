@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"context"
 	"errors"
 	"net/mail"
 	"time"
@@ -49,14 +50,22 @@ func (s SignUpUsecase) Execute(input SignUpUsecaseInput) error {
 
 	hashedPassword := utils.GetOrThrow(bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost))
 
-	s.customerDAO.Create(daos.CustomerSchema{
-		Id:        uuid.New(),
-		Name:      input.Name,
-		Email:     input.Email,
-		Password:  string(hashedPassword),
-		UpdatedAt: time.Now().UTC(),
-		CreatedAt: time.Now().UTC(),
-	})
+	tx := utils.GetOrThrow(s.pgxPool.Begin(context.TODO()))
 
+	defer func() {
+		_ = tx.Rollback(context.TODO())
+	}()
+
+	customerId := uuid.New()
+
+	_ = utils.GetOrThrow(tx.Exec(context.Background(),
+		"INSERT INTO customers (id, name, email, password, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)",
+		customerId, input.Name, input.Email, string(hashedPassword), time.Now().UTC(), time.Now().UTC()))
+
+	_ = utils.GetOrThrow(tx.Exec(context.Background(),
+		"INSERT INTO accounts (id, customer_id, balance, created_at, updated_at) VALUES ($1, $2, $3, $4, $5)",
+		uuid.New(), customerId, 100000, time.Now().UTC(), time.Now().UTC()))
+
+	utils.ThrowOnError(tx.Commit(context.TODO()))
 	return nil
 }

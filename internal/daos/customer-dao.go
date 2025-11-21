@@ -33,6 +33,24 @@ func (p *CustomerDAO) Create(customerSchema CustomerSchema) {
 		customerSchema.Id, customerSchema.Name, customerSchema.Email, customerSchema.Password, customerSchema.CreatedAt, customerSchema.UpdatedAt))
 }
 
+func (c *CustomerDAO) FindOneById(id uuid.UUID) *CustomerSchema {
+	var customerSchema CustomerSchema
+
+	err := c.pgxPool.QueryRow(context.Background(),
+		"SELECT id, name, email, password, created_at, updated_at FROM customers WHERE id = $1", id).
+		Scan(&customerSchema.Id, &customerSchema.Name, &customerSchema.Email, &customerSchema.Password, &customerSchema.CreatedAt, &customerSchema.UpdatedAt)
+
+	if err != nil && err == pgx.ErrNoRows {
+		return nil
+	}
+
+	if err != nil {
+		panic(err)
+	}
+
+	return &customerSchema
+}
+
 func (c *CustomerDAO) FindOneByEmail(email string) *CustomerSchema {
 	var customerSchema CustomerSchema
 

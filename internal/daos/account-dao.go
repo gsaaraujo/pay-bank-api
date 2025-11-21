@@ -32,6 +32,24 @@ func (p *AccountDAO) Create(accountSchema AccountSchema) {
 		accountSchema.Id, accountSchema.CustomerId, accountSchema.Balance, accountSchema.UpdatedAt, accountSchema.CreatedAt))
 }
 
+func (c *AccountDAO) FindOneById(id uuid.UUID) *AccountSchema {
+	var accountSchema AccountSchema
+
+	err := c.pgxPool.QueryRow(context.Background(),
+		"SELECT id, customer_id, balance, created_at, updated_at FROM accounts WHERE id = $1", id).
+		Scan(&accountSchema.Id, &accountSchema.CustomerId, &accountSchema.Balance, &accountSchema.CreatedAt, &accountSchema.UpdatedAt)
+
+	if err != nil && err == pgx.ErrNoRows {
+		return nil
+	}
+
+	if err != nil {
+		panic(err)
+	}
+
+	return &accountSchema
+}
+
 func (c *AccountDAO) FindOneByCustomerId(customerId uuid.UUID) *AccountSchema {
 	var accountSchema AccountSchema
 

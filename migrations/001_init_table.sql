@@ -15,3 +15,15 @@ CREATE TABLE IF NOT EXISTS accounts (
   updated_at TIMESTAMPTZ NOT NULL,
   FOREIGN KEY (customer_id) REFERENCES customers(id)
 );
+
+CREATE TABLE IF NOT EXISTS transactions (
+  id UUID PRIMARY KEY,
+  account_sender_id UUID NOT NULL,
+  account_receiver_id UUID NOT NULL,
+  idempotency_key TEXT NOT NULL,
+  amount INTEGER NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
+  FOREIGN KEY (account_sender_id) REFERENCES accounts(id),
+  FOREIGN KEY (account_receiver_id) REFERENCES accounts(id)
+);

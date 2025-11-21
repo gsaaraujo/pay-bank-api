@@ -58,14 +58,18 @@ func (h *HttpServer) Ready() {
 	pgxPool := utils.GetOrThrow(pgxpool.New(context.Background(), postgresUrl))
 
 	customerDAO := daos.NewCustomerDAO(pgxPool)
+	accountDAO := daos.NewAccountDAO(pgxPool)
+	transactionDAO := daos.NewTransactionDAO(pgxPool)
 
 	loginUsecase := usecases.NewLoginUsecase(customerDAO, awsSecretsGateway)
 	signUpUsecase := usecases.NewSignUpUsecase(pgxPool, customerDAO)
+	transferUsecase := usecases.NewTransferUsecase(pgxPool, accountDAO, transactionDAO)
 
 	loginHandler := handlers.NewLoginHandler(jsonBodyValidator, loginUsecase)
 	signUpHandler := handlers.NewSignUpHandler(jsonBodyValidator, signUpUsecase)
+	transferHandler := handlers.NewTransferHandler(jsonBodyValidator, transferUsecase)
 
-	_ = middlewares.NewEchoJWTMiddleware(accessTokenSigningKey)
+	jwtMiddleware := middlewares.NewEchoJWTMiddleware(accessTokenSigningKey)
 
 	h.echo.GET("/health", func(c echo.Context) error {
 		return c.NoContent(204)
@@ -75,6 +79,8 @@ func (h *HttpServer) Ready() {
 
 	v1.POST("/login", loginHandler.Handle)
 	v1.POST("/sign-up", signUpHandler.Handle)
+
+	v1.POST("/transfer", transferHandler.Handle, jwtMiddleware)
 }
 
 func (h *HttpServer) Start() {

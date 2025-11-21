@@ -68,6 +68,7 @@ func (h *HttpServer) Ready() {
 	loginHandler := handlers.NewLoginHandler(jsonBodyValidator, loginUsecase)
 	signUpHandler := handlers.NewSignUpHandler(jsonBodyValidator, signUpUsecase)
 	transferHandler := handlers.NewTransferHandler(jsonBodyValidator, transferUsecase)
+	getTransactionsHistoryHandler := handlers.NewGetTransactionsHistoryHandler(pgxPool)
 
 	jwtMiddleware := middlewares.NewEchoJWTMiddleware(accessTokenSigningKey)
 
@@ -81,6 +82,7 @@ func (h *HttpServer) Ready() {
 	v1.POST("/sign-up", signUpHandler.Handle)
 
 	v1.POST("/transfer", transferHandler.Handle, jwtMiddleware)
+	v1.GET("/transactions-history", getTransactionsHistoryHandler.Handle, jwtMiddleware)
 }
 
 func (h *HttpServer) Start() {

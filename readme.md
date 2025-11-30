@@ -7,7 +7,8 @@ Requisitos do produto no início:
 - Sem integrações externas.
 
 Os contextos vão guiar a evolução da arquitetura de acordo com as necessidades.
-**Necessidades obrigatórias: Testes de integração, pipeline de CI/CD, métricas, logs e Trunk-Based Development como estratégia de versionamento.**
+
+**Necessidades obrigatórias**: Testes de integração, pipeline de CI/CD, métricas, logs e Trunk-Based Development como estratégia de versionamento.
 
 # Contexto 1
 

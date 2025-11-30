@@ -2,6 +2,7 @@
   "name": "Go Dev",
   "image": "mcr.microsoft.com/devcontainers/go:1.25-bookworm",
   "features": {
+    "ghcr.io/devcontainers/features/node:1": {},
     "ghcr.io/grafana/devcontainer-features/k6:1": {},
     "ghcr.io/devcontainers-extra/features/act:1": {},
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
@@ -16,6 +17,7 @@
         "golang.go",
         "hashicorp.terraform",
         "usernamehw.errorlens",
+        "esbenp.prettier-vscode",
         "pomdtr.excalidraw-editor",
         "ms-azuretools.vscode-docker",
         "github.vscode-github-actions",
